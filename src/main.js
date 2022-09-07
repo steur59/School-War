@@ -62,7 +62,7 @@ class MenuBar {
 }
 
 
-class Screen {
+class Custom_Canvas {
     constructor(numberOfTilesX, numberOfTilesY,user){
         this.numberOfTilesX = numberOfTilesX;
         this.numberOfTilesY = numberOfTilesY;
@@ -79,34 +79,42 @@ class Screen {
         this.initialPinchDistance = null;
         this.lastZoom = this.cameraZoom;
 
+
         var canvas = document.createElement("canvas");
         var ctx = canvas.getContext("2d");
-
-
-        canvas.addEventListener('mousedown', this.onPointerDown);
-        canvas.addEventListener('touchstart', (e) => this.handleTouch(e, onPointerDown));
-        canvas.addEventListener('mouseup', this.onPointerUp);
-        canvas.addEventListener('touchend',  (e) => this.handleTouch(e, onPointerUp));
-        canvas.addEventListener('mousemove', this.onPointerMove);
-        canvas.addEventListener('touchmove', (e) => this.handleTouch(e, onPointerMove));
-        canvas.addEventListener( 'wheel', (e) => this.adjustZoom(e.deltaY*this.SCROLL_SENSITIVITY));
-
         document.body.appendChild(canvas);
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-
-
-
-        ctx.translate( window.innerWidth / 2, window.innerHeight / 2 )
-        ctx.scale(this.cameraZoom, this.cameraZoom)
-        ctx.translate( -window.innerWidth / 2 + this.cameraOffset.x, -window.innerHeight / 2 + this.cameraOffset.y )
-
         this.canvas=canvas;
         this.ctx=ctx;
+
+
+                /*
+        canvas.addEventListener('mousedown', itself.onPointerDown(itself));
+        canvas.addEventListener('touchstart', (e) => itself.handleTouch(e, onPointerDown,itself));
+        canvas.addEventListener('mouseup', itself.onPointerUp);
+        canvas.addEventListener('touchend',  (e) => itself.handleTouch(e, onPointerUp,itself));
+        canvas.addEventListener('mousemove', itself.onPointerMove(itself));
+        canvas.addEventListener('touchmove', (e) => itself.handleTouch(e, onPointerMove(itself)));
+        */
+        this.canvas.addEventListener( 'wheel', (e) => this.adjustZoom(e.deltaY*this.SCROLL_SENSITIVITY));
+        
+
+
+        requestAnimationFrame( this.draw );
+    }
+
+    draw(){
+
+        this.ctx.translate( window.innerWidth / 2, window.innerHeight / 2 );
+        this.ctx.scale(this.cameraZoom, this.cameraZoom);
+        this.ctx.translate( -window.innerWidth / 2 + this.cameraOffset.x, -window.innerHeight / 2 + this.cameraOffset.y );
+
+        requestAnimationFrame( draw );
     }
 
     
-    getEventLocation(e){
+    getEventLocation(e,itself){
         if (e.touches && e.touches.length == 1){
             return { x:e.touches[0].clientX, y: e.touches[0].clientY };
         }
@@ -115,66 +123,72 @@ class Screen {
         }
     }
 
-    
-    onPointerDown(e) {
-        this.isDragging = true
-        this.dragStart.x = this.getEventLocation(e).x/this.cameraZoom - this.cameraOffset.x;
-        this.dragStart.y = this.getEventLocation(e).y/this.cameraZoom - this.cameraOffset.y;
+    /*
+    onPointerDown(e,itself) {
+        itself.isDragging = true;
+        consolelog(itself);
+        itself.dragStart.x = (itself.getEventLocation(e).x)/itself.cameraZoom - itself.cameraOffset.x;
+        itself.dragStart.y = (itself.getEventLocation(e).y)/itself.cameraZoom - itself.cameraOffset.y;
     }
     
-    onPointerUp(e) {
-        this.isDragging = false
-        this.initialPinchDistance = null
-        this.lastZoom = this.cameraZoom
+    onPointerUp(e,itself) {
+        itself.isDragging = false
+        itself.initialPinchDistance = null
+        itself.lastZoom = itself.cameraZoom
     }
     
-    onPointerMove(e) {
-        if (this.isDragging) {
-            this.cameraOffset.x = this.getEventLocation(e).x/this.cameraZoom - this.dragStart.x;
-            this.cameraOffset.y = this.getEventLocation(e).y/this.cameraZoom - this.dragStart.y;
+    onPointerMove(e,itself) {
+        if (itself.isDragging) {
+            itself.cameraOffset.x = itself.getEventLocation(e).x/itself.cameraZoom - itself.dragStart.x;
+            itself.cameraOffset.y = itself.getEventLocation(e).y/itself.cameraZoom - itself.dragStart.y;
         }
     }
     
-    handleTouch(e, singleTouchHandler) {
+    handleTouch(e, singleTouchHandler,itself) {
         if ( e.touches.length == 1 ){
-            this.singleTouchHandler(e);
+            itself.singleTouchHandler(e);
         }
         else if (e.type == "touchmove" && e.touches.length == 2){
-            this.isDragging = false;
-            this.handlePinch(e);
+            itself.isDragging = false;
+            itself.handlePinch(e);
         }
     }
     
 
     
-    handlePinch(e) {
+    handlePinch(e,itself) {
         e.preventDefault();
         var touch1 = { x: e.touches[0].clientX, y: e.touches[0].clientY };
         var touch2 = { x: e.touches[1].clientX, y: e.touches[1].clientY };
         var currentDistance = (touch1.x - touch2.x)**2 + (touch1.y - touch2.y)**2;
-        if (this.initialPinchDistance == null) {
-            this.initialPinchDistance = currentDistance;
+        if (itself.initialPinchDistance == null) {
+            itself.initialPinchDistance = currentDistance;
         }
         else {
-            this.adjustZoom( null, currentDistance/this.initialPinchDistance );
+            itself.adjustZoom( null, currentDistance/itself.initialPinchDistance );
         }
     }
-    
+    */
     adjustZoom(zoomAmount, zoomFactor) {
+        consolelog("enter function");
         if (!this.isDragging) {
             if (zoomAmount) {
+                consolelog("zoom amount");
                 this.cameraZoom += zoomAmount;
             }
             else if (zoomFactor) {
+                consolelog("zoom factor");
                 this.cameraZoom = zoomFactor*this.lastZoom;
             }
             this.cameraZoom = Math.min( this.cameraZoom, this.MAX_ZOOM );
             this.cameraZoom = Math.max( this.cameraZoom, this.MIN_ZOOM );
+            consolelog(this);
         }
     }
+    
 
 
-    fillScreenWithFramingLines(color) {
+    fillCustom_CanvasWithFramingLines(color) {
         var ctx = this.canvas.getContext("2d");
         ctx.fillStyle = color;
         for(var i = 0; i < this.numberOfTilesX; i++){
@@ -228,7 +242,7 @@ class Screen {
 
 
 
-    whenScreenIsClickedCallBackCoordinates(){
+    whenCustom_CanvasIsClickedCallBackCoordinates(){
         this.canvas.addEventListener("click", function(event){
             var x = event.offsetX;
             var y = event.offsetY;
@@ -250,9 +264,9 @@ function main (){
 
     var user = new User("John", "white");
 
-    var screen = new Screen(1500,750,"#000000",20,10,user);
-    screen.fillScreenWithFramingLines("#ad2929");
-    screen.whenScreenIsClickedCallBackCoordinates();
+    var screen = new Custom_Canvas(1500,750,user);
+    screen.fillCustom_CanvasWithFramingLines("#ad2929");
+    screen.whenCustom_CanvasIsClickedCallBackCoordinates();
     
     var menuBar = new MenuBar();
     menuBar.addButton("Custom Color", function(){
