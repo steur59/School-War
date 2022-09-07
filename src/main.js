@@ -4,10 +4,10 @@ let canvas = document.createElement("canvas");
 var numberOfTilesX = 192;
 var numberOfTilesY = 108;
 var cameraOffset = { x: window.innerWidth/2, y: window.innerHeight/2 }
-var cameraZoom = 1
-var MAX_ZOOM = 5
-var MIN_ZOOM = 0.1
-var SCROLL_SENSITIVITY = 0.0005
+var cameraZoom = 1;
+var MAX_ZOOM = 100;
+var MIN_ZOOM = 0.1;
+var SCROLL_SENSITIVITY = 0.005;
 var width = window.innerWidth;
 var height = window.innerHeight;
 var isDragging = false;
@@ -29,13 +29,22 @@ canvas.addEventListener('mousemove', itself.onPointerMove(itself));
 canvas.addEventListener('touchmove', (e) => itself.handleTouch(e, onPointerMove(itself)));
 */
 canvas.addEventListener( 'wheel', (e) => adjustZoom(e.deltaY*this.SCROLL_SENSITIVITY));
-//requestAnimationFrame( draw() );
+requestAnimationFrame( draw );
 
 function draw(){
+    canvas.width = width;
+    canvas.height = height;
+    fillCustom_CanvasWithFramingLines("#ad2929");
+    whenCustom_CanvasIsClickedCallBackCoordinates();
     ctx.translate( window.innerWidth / 2, window.innerHeight / 2 );
     ctx.scale(cameraZoom, cameraZoom);
     ctx.translate( -window.innerWidth / 2 + cameraOffset.x, -window.innerHeight / 2 + cameraOffset.y );
-    requestAnimationFrame( draw() );
+    var x = 1;
+    var y = 1;
+    var coordinates = reverseTransformToCoordinates(x, y);
+    var roundedCoordinates = roundLowCoordinates(coordinates);
+    fillTile(roundedCoordinates[0], roundedCoordinates[1], user.getColor());
+    requestAnimationFrame( draw );
 }
 
 function getEventLocation(e){
@@ -49,7 +58,7 @@ function getEventLocation(e){
 
 function adjustZoom(zoomAmount, zoomFactor) {
     if (!isDragging) {
-        if (zoomAmount) {
+        if (zoomAmount) {   
             cameraZoom += zoomAmount;
         }
         else if (zoomFactor) {
@@ -234,14 +243,12 @@ function main (){
     console.log("Hello World");
 
     document.body.appendChild(canvas);
-    canvas.width = width;
-    canvas.height = height;
+
 
 
     user = new User("John", "white");
 
-    fillCustom_CanvasWithFramingLines("#ad2929");
-    whenCustom_CanvasIsClickedCallBackCoordinates();
+
     
     menuBar = new MenuBar();
     menuBar.addButton("Custom Color", function(){
